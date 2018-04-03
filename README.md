@@ -1,7 +1,7 @@
 # JavaFXUtilities
 Simple utilities that make writing javafx programs easier
 
-#View Manager
+# View Manager
 A simple java class that must be instantiated before using
 Supports:
   -popups
