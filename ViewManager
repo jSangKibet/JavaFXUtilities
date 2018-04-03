@@ -1,0 +1,124 @@
+package mas.utilities;
+
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
+
+import java.io.IOException;
+
+public class ViewManager {
+    private static Stage primaryStage;
+    private static Scene primaryScene;
+    private static Parent level1Root;
+    private static Parent level2Root;
+    private static Parent level3Root;
+    private static int viewStack;
+    private static Alert alert;
+    private static Stage secondaryStage;
+
+    public static void init(Stage startStage) {
+        primaryStage = startStage;
+        primaryStage.setMaximized(true);
+        primaryStage.getIcons().add(new Image("path_to_icon"));
+        primaryStage.setTitle("Merryland Accounting System");
+        primaryStage.setOnCloseRequest((WindowEvent e) -> cleanUpAndExit());
+
+        secondaryStage = new Stage();
+        secondaryStage.initStyle(StageStyle.UNDECORATED);
+        secondaryStage.initModality(Modality.APPLICATION_MODAL);
+
+        alert = new Alert(Alert.AlertType.NONE);
+        alert.getDialogPane().getStylesheets().add("path_to_main_stylesheet");
+        alert.getDialogPane().setMinWidth(640);
+        alert.getDialogPane().setMinHeight(480);
+        viewStack = 0;
+    }
+
+    public static void createScene(Parent root) {
+        primaryScene = new Scene(root);
+        primaryScene.getStylesheets().add("path_to_main_stylesheet");
+        primaryStage.setScene(primaryScene);
+        primaryStage.show();
+    }
+
+    public static void showScene(Parent root) {
+        primaryScene.setRoot(root);
+        viewStack = 0;
+    }
+
+    public static void showOverScene(Parent root) {
+        if (viewStack == 0) {
+            level1Root = primaryScene.getRoot();
+        } else if (viewStack == 1) {
+            level2Root = primaryScene.getRoot();
+        } else {
+            level3Root = primaryScene.getRoot();
+        }
+        viewStack++;
+        primaryScene.setRoot(root);
+    }
+
+    public static void goHome() throws IOException {
+        viewStack = 0;
+        primaryScene.setRoot(level1Root);
+    }
+
+    public static void showUnderScene() {
+        Parent root;
+        if (viewStack == 3) {
+            root = level3Root;
+        } else if (viewStack == 2) {
+            root = level2Root;
+        } else {
+            root = level1Root;
+        }
+        viewStack--;
+        primaryScene.setRoot(root);
+    }
+
+    public static Alert getWarningAlert(String header, String content) {
+        alert.setAlertType(Alert.AlertType.WARNING);
+        alert.setTitle("WARNING");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        return alert;
+    }
+
+    public static Alert getInformationAlert(String header, String content) {
+        alert.setAlertType(Alert.AlertType.INFORMATION);
+        alert.setTitle("INFO");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        return alert;
+    }
+
+    public static Alert getConfirmationAlert(String header, String content) {
+        alert.setAlertType(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("CONFIRM");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        return alert;
+    }
+
+    public static void showPopupAndWait(Parent root) {
+        secondaryStage.setScene(new Scene(root, 800, 600));
+        secondaryStage.showAndWait();
+    }
+
+    public static void closePopup() {
+        secondaryStage.hide();
+    }
+
+    public static void clearUnderScene() {
+        level1Root = null;
+    }
+
+    public static void cleanUpAndExit() {
+        primaryStage.close();
+    }
+}
